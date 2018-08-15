@@ -11,7 +11,10 @@
 
 cmake_minimum_required(VERSION 3.5)
 
-SET( TARGET Splines )
+#SET( TARGET Splines )
+
+add_compile_options(-DSPLINES_DO_NOT_USE_GENERIC_CONTAINER)
+
 
 PROJECT( ${TARGET} CXX C )
 
@@ -51,51 +54,94 @@ FOREACH (F ${S})
   LIST( APPEND HEADERS ${RF} )
 ENDFOREACH (F ${S})
 
-INCLUDE_DIRECTORIES( src GC/lib/include )
 
-ADD_LIBRARY( ${TARGET} STATIC ${SOURCES} ${HEADERS} )
 
-SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin)
-SET(LIBRARY_OUTPUT_PATH    ${CMAKE_CURRENT_SOURCE_DIR}/lib)
-file(MAKE_DIRECTORY  ${CMAKE_CURRENT_SOURCE_DIR}/bin )
-file(MAKE_DIRECTORY  ${CMAKE_CURRENT_SOURCE_DIR}/lib )
 
-INSTALL( FILES ${HEADERS} DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/lib/include )
 
-IF( BUILD_EXECUTABLE )
-  ADD_EXECUTABLE( test1 tests/test1.cc ${HEADERS} )
-  TARGET_LINK_LIBRARIES( test1 ${TARGET} )
-  
-  ADD_EXECUTABLE( test2 tests/test2.cc ${HEADERS} )
-  TARGET_LINK_LIBRARIES( test1 ${TARGET} )
-  
-  ADD_EXECUTABLE( test3 tests/test3.cc ${HEADERS} )
-  TARGET_LINK_LIBRARIES( test3 ${TARGET} )
-  
-  ADD_EXECUTABLE( test4 tests/test4.cc ${HEADERS} )
-  TARGET_LINK_LIBRARIES( test4 ${TARGET} )
-  
-  ADD_EXECUTABLE( test5 tests/test5.cc ${HEADERS} )
-  TARGET_LINK_LIBRARIES( test5 ${TARGET} )
-  
-  ADD_EXECUTABLE( test6 tests/test6.cc ${HEADERS} )
-  TARGET_LINK_LIBRARIES( test6 ${TARGET} )
-  
-  ADD_EXECUTABLE( test7 tests/test7.cc ${HEADERS} )
-  TARGET_LINK_LIBRARIES( test7 ${TARGET} )
-ENDIF()
+# MAKE A CATKIN PACKAGE
 
-MESSAGE( STATUS "Using ${SSE_FLAGS} extensions")
-MESSAGE( STATUS "C compiler                  = ${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPILER}" )
-MESSAGE( STATUS "C++ compiler                = ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER}" )
-MESSAGE( STATUS "CMAKE_CXX_FLAGS_RELEASE     = ${CMAKE_CXX_FLAGS_RELEASE}" )
-MESSAGE( STATUS "CMAKE_CXX_FLAGS             = ${CMAKE_CXX_FLAGS}" )
-MESSAGE( STATUS "CMAKE_C_FLAGS_RELEASE       = ${CMAKE_C_FLAGS_RELEASE}" )
-MESSAGE( STATUS "CMAKE_C_FLAGS               = ${CMAKE_C_FLAGS}" )
-MESSAGE( STATUS "CMAKE_SYSTEM_NAME           = ${CMAKE_SYSTEM_NAME}" )
-MESSAGE( STATUS "CMAKE_SYSTEM_PROCESSOR      = ${CMAKE_SYSTEM_PROCESSOR}" )
-IF(APPLE)
-  MESSAGE( STATUS "CMAKE_OSX_SYSROOT           = ${CMAKE_OSX_SYSROOT}" )
-  MESSAGE( STATUS "CMAKE_OSX_ARCHITECTURES     = ${CMAKE_OSX_ARCHITECTURES}" )
-  MESSAGE( STATUS "CMAKE_OSX_DEPLOYMENT_TARGET = ${CMAKE_OSX_DEPLOYMENT_TARGET}" )
-ENDIF()
+#cmake_minimum_required(VERSION 2.8.3)
+project(splines)
+find_package(catkin REQUIRED)
+catkin_package(
+  INCLUDE_DIRS src
+  LIBRARIES Splines
+#  CATKIN_DEPENDS other_catkin_pkg
+#  DEPENDS system_lib
+)
+
+
+
+###########
+## Build ##
+###########
+
+# Declare a C++ library
+add_library(${PROJECT_NAME}
+    ${SOURCES}
+)
+
+include_directories(
+   include
+   ${catkin_INCLUDE_DIRS}
+   src
+   # DO NOT USE GenericContainer GC/lib/include
+)
+
+
+#############
+## Install ##
+#############
+
+install(TARGETS ${PROJECT_NAME}
+   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+ )
+
+install(DIRECTORY src/
+   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+   FILES_MATCHING PATTERN "*.hh"
+   #${HEADERS}
+ )
+
+
+#############
+## Testing ##
+#############
+
+# Add gtest based cpp test target and link libraries
+catkin_add_gtest(${PROJECT_NAME}-test1 tests/test1.cc)
+catkin_add_gtest(${PROJECT_NAME}-test2 tests/test2.cc)
+catkin_add_gtest(${PROJECT_NAME}-test3 tests/test3.cc)
+catkin_add_gtest(${PROJECT_NAME}-test4 tests/test4.cc)
+catkin_add_gtest(${PROJECT_NAME}-test5 tests/test5.cc)
+catkin_add_gtest(${PROJECT_NAME}-test6 tests/test6.cc)
+catkin_add_gtest(${PROJECT_NAME}-test7 tests/test7.cc)
+
+
+if(TARGET ${PROJECT_NAME}-test1)
+  target_link_libraries(${PROJECT_NAME}-test1 ${PROJECT_NAME})
+endif()
+ if(TARGET ${PROJECT_NAME}-test2)
+  target_link_libraries(${PROJECT_NAME}-test2 ${PROJECT_NAME})
+endif()
+ if(TARGET ${PROJECT_NAME}-test3)
+  target_link_libraries(${PROJECT_NAME}-test3 ${PROJECT_NAME})
+endif()
+ if(TARGET ${PROJECT_NAME}-test4)
+  target_link_libraries(${PROJECT_NAME}-test4 ${PROJECT_NAME})
+endif()
+ if(TARGET ${PROJECT_NAME}-test5)
+  target_link_libraries(${PROJECT_NAME}-test5 ${PROJECT_NAME})
+endif()
+ if(TARGET ${PROJECT_NAME}-test6)
+  target_link_libraries(${PROJECT_NAME}-test6 ${PROJECT_NAME})
+endif()
+ if(TARGET ${PROJECT_NAME}-test7)
+  target_link_libraries(${PROJECT_NAME}-test7 ${PROJECT_NAME})
+endif()
+
+# Add folders to be run by python nosetests
+
+catkin_add_nosetests(tests)
