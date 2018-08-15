@@ -65,7 +65,7 @@ project(splines)
 find_package(catkin REQUIRED)
 catkin_package(
   INCLUDE_DIRS src
-  LIBRARIES Splines
+  LIBRARIES splines
 #  CATKIN_DEPENDS other_catkin_pkg
 #  DEPENDS system_lib
 )
